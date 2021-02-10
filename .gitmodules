@@ -1,4 +1,0 @@
-[submodule "test"]
-	path = test
-	url = https://github.com/Janjhy/wellbeing-api-app.git
-	branch = test
