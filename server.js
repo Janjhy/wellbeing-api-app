@@ -7,15 +7,17 @@ let port = 8066;
 let config = require("./config/dev.js");
 let routes = require("./routes");
 
-mongoose.connect(config.mongodatabase.uri);
+mongoose.connect(config.mongodatabase.uri + "/" + config.mongodatabase.db_name, {useNewUrlParser: true, useUnifiedTopology: true});
 
 app.use(bodyparser.urlencoded({extended: true}));
 routes.apiRouter(app, mongoose);
 
-app.use(function(_, res) {
-   res.status(400);
+app.use((_, res) => {
+   res.status(404);
    res.json({error: 'Invalid URL'});
 });
+
+
 
 app.listen(port);
 
