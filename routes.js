@@ -33,32 +33,35 @@ exports.apiRouter = (app) => {
     router.post("/user",
         body("username").exists({checkFalsy: true}).isLength({min: 2}),
         body("password").exists({checkFalsy: true}).isLength({min: 8}),
-        (req, res) => {
+        async (req, res) => {
             const errors = validationResult(req);
+            //console.log(req.body); TODO remove
             if (!errors.isEmpty()) {
                 return res.status(400).json({errors: errors.array()});
             }
-            if (ModelUser.exists({"username": req.body.username}, (error, _) => {
+            ModelUser.exists({"username": req.body.username}, (error, result) => {
                 if (error) {
                     return res.status(400).json({errors: error});
-                }
-            })) return res.status(400).json({errors: "Username already exists."});
-            let user = new ModelUser({
-                username: req.body.username,
-                password: req.body.password,
-                points: req.body.points,
-                access_rights: req.body.access_rights,
-                location: req.body.location,
-                subscribers: req.body.subscribers
-            });
-            user.save((err, doc) => {
-                if (err) {
-                    return res.status(400).json({errors: err});
+                } else if (result) {
+                    return res.status(400).json({errors: "Username already exists."});
                 } else {
-                    return res.status(201).json(doc);
+                    let user = new ModelUser({
+                        username: req.body.username,
+                        password: req.body.password,
+                        points: req.body.points,
+                        access_rights: 'user',
+                        location: req.body.location,
+                        subscribers: req.body.subscribers
+                    });
+                    user.save((err, doc) => {
+                        if (err) {
+                            return res.status(400).json({errors: err});
+                        } else {
+                            return res.status(201).json(doc);
+                        }
+                    })
                 }
             })
-
         }
     );
 
@@ -130,27 +133,25 @@ exports.apiRouter = (app) => {
             }
             if (!ModelUser.exists({"_id": req.body.user_id})) {
                 return res.status(400).json({errors: "No such user id found."});
-            }
-            if (!ModelAssessment.exists({"_id": req.body.assessment_id})) {
+            } else if (!ModelAssessment.exists({"_id": req.body.assessment_id})) {
                 return res.status(400).json({errors: "No such assessment found."});
+            } else {
+                let assessment = new ModelCompletedAssessment({
+                    user_id: req.body.user_id,
+                    assessment_id: req.body.assessment_id,
+                    answers: req.body.answers,
+                    comment: req.body.comment,
+                });
+                assessment.save((err, doc) => {
+                    if (err) {
+                        return res.status(400).json({errors: err});
+                    } else {
+                        return res.status(201).json(doc);
+                    }
+                })
             }
-            console.log(req.body.answers[0]);
-            let assessment = new ModelCompletedAssessment({
-                user_id: req.body.user_id,
-                assessment_id: req.body.assessment_id,
-                answers: req.body.answers,
-                comment: req.body.comment,
-            });
-            assessment.save((err, doc) => {
-                if (err) {
-                    return res.status(400).json({errors: err});
-                } else {
-                    return res.status(201).json(doc);
-                }
-            })
         }
     );
-
     app.use("/api", router);
 };
 
