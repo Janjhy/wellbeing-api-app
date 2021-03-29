@@ -131,25 +131,30 @@ exports.apiRouter = (app) => {
             if (!errors.isEmpty()) {
                 return res.status(400).json({errors: errors.array()});
             }
-            if (!ModelUser.exists({"_id": req.body.user_id})) {
-                return res.status(400).json({errors: "No such user id found."});
-            } else if (!ModelAssessment.exists({"_id": req.body.assessment_id})) {
-                return res.status(400).json({errors: "No such assessment found."});
-            } else {
-                let assessment = new ModelCompletedAssessment({
-                    user_id: req.body.user_id,
-                    assessment_id: req.body.assessment_id,
-                    answers: req.body.answers,
-                    comment: req.body.comment,
-                });
-                assessment.save((err, doc) => {
-                    if (err) {
-                        return res.status(400).json({errors: err});
+            ModelUser.exists({"_id": req.body.user_id}, (error, result) => {
+                if (error || !result) {
+                    return res.status(400).json({errors: "No such user id found."});
+                }
+                ModelAssessment.exists({"_id": req.body.assessment_id}, (error1, result1) => {
+                    if (error1 || !result1) {
+                        return res.status(400).json({errors: "No such assessment id found."});
                     } else {
-                        return res.status(201).json(doc);
+                        let assessment = new ModelCompletedAssessment({
+                            user_id: req.body.user_id,
+                            assessment_id: req.body.assessment_id,
+                            answers: req.body.answers,
+                            comment: req.body.comment,
+                        });
+                        assessment.save((err, doc) => {
+                            if (err) {
+                                return res.status(400).json({errors: err});
+                            } else {
+                                return res.status(201).json(doc);
+                            }
+                        })
                     }
                 })
-            }
+            })
         }
     );
     app.use("/api", router);
