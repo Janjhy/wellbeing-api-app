@@ -25,6 +25,17 @@ let questionSchema = new mongoose.Schema({
 });
 const ModelQuestion = mongoose.model("Question", questionSchema);
 
+let answerSchema = new mongoose.Schema({
+    question_string: String,
+    question_id: mongoose.Types.ObjectId,
+    min_score: mongoose.Types.Decimal128,
+    max_score: mongoose.Types.Decimal128,
+    max_text: String,
+    min_text: String,
+    score: {type: mongoose.Types.Decimal128, default: -1}
+});
+const ModelAnswer = mongoose.model("Answer", answerSchema);
+
 let assessmentSchema = new mongoose.Schema({
         assessment_name: {type: String, trim: true},
         assessment_description: {type: String, trim: true},
@@ -53,7 +64,7 @@ let completedAssessmentSchema = new mongoose.Schema({
         date_time: {type: Date, default: Date.now},
         user_id: mongoose.Types.ObjectId,
         assessment_id: mongoose.Types.ObjectId,
-        answers: {type: [questionSchema]},
+        answers: {type: [answerSchema]},
         comment: {type: String, default: "", trim: true}
     },
     {
@@ -67,3 +78,4 @@ exports.ModelAssessment = ModelAssessment;
 exports.ModelCompletedAssessment = ModelCompletedAssessment;
 exports.ModelBasicAssessment = ModelBasicAssessment;
 exports.ModelQuestion = ModelQuestion;
+exports.ModelAnswer = ModelAnswer;

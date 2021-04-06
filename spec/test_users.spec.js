@@ -1,4 +1,3 @@
-
 let qs = require("qs");
 let frisby = require("frisby");
 let testConfig = require("../config/dev.js");
@@ -7,7 +6,6 @@ let uri = testConfig.testing.serverURI;
 let TestUser1_Username = "Test1";
 let TestUser1_Password = "Password1";
 let TestUser1_Points = 0;
-let TestUser1_Access = "user";
 let TestUser1_Loc = "Helsinki";
 let TestUser1_Subscribers = [];
 
@@ -52,7 +50,7 @@ it("POST user with existing username", () => frisby.post(uri + "/user", {
     .expect("status", 400));
 
 //Test valid user creation
-it("POST new user ", () => frisby.post(uri + "/user", {
+/*it("POST new user ", () => frisby.post(uri + "/user", {
     body: qs.stringify({
         "username": TestUser1_Username,
         "password": TestUser1_Password,
@@ -62,7 +60,7 @@ it("POST new user ", () => frisby.post(uri + "/user", {
 })
     .expect("status", 200)
     .expect("json", {"username": TestUser1_Username, "location": TestUser1_Loc, "points": TestUser1_Points}));
-
+*/
 //Test duplicate creation
 it("POST user with existing username", () => frisby.post(uri + "/user", {
         body: qs.stringify({

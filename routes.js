@@ -1,5 +1,5 @@
 const express = require("express");
-const {body, validationResult, query} = require("express-validator");
+const {body, validationResult, query, param} = require("express-validator");
 const {ModelUser, ModelBasicAssessment, ModelAssessment, ModelCompletedAssessment} = require("./models");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -157,6 +157,32 @@ exports.apiRouter = (app) => {
             })
         }
     );
+
+    //Get assessments by user id and assessment id
+    router.get("/assessment/:assessmentId/user/:userId",
+        param("userId").exists({checkFalsy: true}).custom((userId) => checkValidID(userId)),
+        param("assessmentId").exists({checkFalsy: true}).custom((assessmentId) => checkValidID(assessmentId)),
+        (req, res) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({errors: errors.array()});
+            }
+            let assessmentId = req.params.assessmentId;
+            let userId = req.params.userId;
+            ModelCompletedAssessment.find({user_id: userId, assessment_id: assessmentId}, (error, results) => {
+                if (error) {
+                    return res.status(400).json({errors: error});
+                }
+                if (results.length < 1) {
+                    return res.status(400).json({errors: "No matching assessments for user found."})
+                } else {
+                    return res.status(200).json(results);
+                }
+            })
+        }
+
+    );
+
     app.use("/api", router);
 };
 
