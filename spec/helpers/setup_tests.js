@@ -34,4 +34,4 @@ function closeDatabase(cb) {
     wellbeing_test_db.close;
 }
 
-async.series([connectDatabase, closeDatabase]);
+async.series([connectDatabase, closeDatabase]).then();

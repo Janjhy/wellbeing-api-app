@@ -35,7 +35,6 @@ exports.apiRouter = (app) => {
         body("password").exists({checkFalsy: true}).isLength({min: 8}),
         async (req, res) => {
             const errors = validationResult(req);
-            //console.log(req.body); TODO remove
             if (!errors.isEmpty()) {
                 return res.status(400).json({errors: errors.array()});
             }
@@ -186,6 +185,7 @@ exports.apiRouter = (app) => {
     app.use("/api", router);
 };
 
+//Checks that passed ids match mongodb ObjectId type
 function checkValidID(id) {
     if (ObjectId.isValid(id)) {
         return (String(new ObjectId(id)) === id)

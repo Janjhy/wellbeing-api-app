@@ -14,4 +14,6 @@ frisby.globalSetup({
     }
 });
 
-it("GET user basic assessments", () => frisby.get(`${uri}/assessment/${basicAssessmentId}/user/${userId1}`).expect("status", 200));
+it("GET user basic assessments", () =>
+    frisby.get(`${uri}/assessment/${basicAssessmentId}/user/${userId1}`)
+        .expect("status", 200));
