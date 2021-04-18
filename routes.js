@@ -1,6 +1,6 @@
 const express = require("express");
-const { body, validationResult, query } = require("express-validator");
 const { ModelUser, ModelBasicAssessment, ModelAssessment, ModelCompletedAssessment, ModelRequest } = require("./models");
+const {body, validationResult, query, param} = require("express-validator");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 exports.apiRouter = (app) => {
@@ -31,34 +31,36 @@ exports.apiRouter = (app) => {
 
     //Create user
     router.post("/user",
-        body("username").exists({ checkFalsy: true }).isLength({ min: 2 }),
-        body("password").exists({ checkFalsy: true }).isLength({ min: 8 }),
-        (req, res) => {
+        body("username").exists({checkFalsy: true}).isLength({min: 2}),
+        body("password").exists({checkFalsy: true}).isLength({min: 8}),
+        async (req, res) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            if (ModelUser.exists({ "username": req.body.username }, (error, _) => {
+            ModelUser.exists({"username": req.body.username}, (error, result) => {
                 if (error) {
-                    return res.status(400).json({ errors: error });
-                }
-            })) return res.status(400).json({ errors: "Username already exists." });
-            let user = new ModelUser({
-                username: req.body.username,
-                password: req.body.password,
-                points: req.body.points,
-                access_rights: req.body.access_rights,
-                location: req.body.location,
-                subscribers: req.body.subscribers
-            });
-            user.save((err, doc) => {
-                if (err) {
-                    return res.status(400).json({ errors: err });
+                    return res.status(400).json({errors: error});
+                } else if (result) {
+                    return res.status(400).json({errors: "Username already exists."});
                 } else {
-                    return res.status(201).json(doc);
+                    let user = new ModelUser({
+                        username: req.body.username,
+                        password: req.body.password,
+                        points: req.body.points,
+                        access_rights: 'user',
+                        location: req.body.location,
+                        subscribers: req.body.subscribers
+                    });
+                    user.save((err, doc) => {
+                        if (err) {
+                            return res.status(400).json({errors: err});
+                        } else {
+                            return res.status(201).json(doc);
+                        }
+                    })
                 }
             })
-
         }
     );
 
@@ -128,27 +130,56 @@ exports.apiRouter = (app) => {
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            if (!ModelUser.exists({ "_id": req.body.user_id })) {
-                return res.status(400).json({ errors: "No such user id found." });
+            ModelUser.exists({"_id": req.body.user_id}, (error, result) => {
+                if (error || !result) {
+                    return res.status(400).json({errors: "No such user id found."});
+                }
+                ModelAssessment.exists({"_id": req.body.assessment_id}, (error1, result1) => {
+                    if (error1 || !result1) {
+                        return res.status(400).json({errors: "No such assessment id found."});
+                    } else {
+                        let assessment = new ModelCompletedAssessment({
+                            user_id: req.body.user_id,
+                            assessment_id: req.body.assessment_id,
+                            answers: req.body.answers,
+                            comment: req.body.comment,
+                        });
+                        assessment.save((err, doc) => {
+                            if (err) {
+                                return res.status(400).json({errors: err});
+                            } else {
+                                return res.status(201).json(doc);
+                            }
+                        })
+                    }
+                })
+            })
+        }
+    );
+
+    //Get assessments by user id and assessment id
+    router.get("/assessment/:assessmentId/user/:userId",
+        param("userId").exists({checkFalsy: true}).custom((userId) => checkValidID(userId)),
+        param("assessmentId").exists({checkFalsy: true}).custom((assessmentId) => checkValidID(assessmentId)),
+        (req, res) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({errors: errors.array()});
             }
-            if (!ModelAssessment.exists({ "_id": req.body.assessment_id })) {
-                return res.status(400).json({ errors: "No such assessment found." });
-            }
-            console.log(req.body.answers[0]);
-            let assessment = new ModelCompletedAssessment({
-                user_id: req.body.user_id,
-                assessment_id: req.body.assessment_id,
-                answers: req.body.answers,
-                comment: req.body.comment,
-            });
-            assessment.save((err, doc) => {
-                if (err) {
-                    return res.status(400).json({ errors: err });
+            let assessmentId = req.params.assessmentId;
+            let userId = req.params.userId;
+            ModelCompletedAssessment.find({user_id: userId, assessment_id: assessmentId}, (error, results) => {
+                if (error) {
+                    return res.status(400).json({errors: error});
+                }
+                if (results.length < 1) {
+                    return res.status(400).json({errors: "No matching assessments for user found."})
                 } else {
-                    return res.status(201).json(doc);
+                    return res.status(200).json(results);
                 }
             })
         }
+
     );
 
     //Create request
@@ -232,6 +263,7 @@ exports.apiRouter = (app) => {
     app.use("/api", router);
 };
 
+//Checks that passed ids match mongodb ObjectId type
 function checkValidID(id) {
     if (ObjectId.isValid(id)) {
         return (String(new ObjectId(id)) === id)
