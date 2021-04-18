@@ -220,7 +220,7 @@ exports.apiRouter = (app) => {
     router.get('/requests/:userid',
     //query("id").exists({ checkFalsy: true }).custom((id) => checkValidID(id)),
      (request, response) => {
-        ModelRequest.find({ user_id: request.params.userid, help: false }).then(item => {
+        ModelRequest.find({ user_id: request.params.userid }).then(item => {
             item ? response.json(item) : response.status(404).end()
         })
             .catch(error => {
