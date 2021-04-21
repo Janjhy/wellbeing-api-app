@@ -73,9 +73,23 @@ let completedAssessmentSchema = new mongoose.Schema({
 );
 const ModelCompletedAssessment = mongoose.model("CompletedAssessment", completedAssessmentSchema);
 
+let requestSchema = new mongoose.Schema({
+    date: {type: Date, default: Date.now},
+    user_id: mongoose.Types.ObjectId,
+    description: {type:String, maxlength: 1000},
+    help: {type:Boolean, default: false},
+    helper: {type: mongoose.Types.ObjectId, default: null }
+},
+{
+    collection: "requests"
+});
+const ModelRequest = mongoose.model("Request", requestSchema);
+
+
 exports.ModelUser = ModelUser;
 exports.ModelAssessment = ModelAssessment;
 exports.ModelCompletedAssessment = ModelCompletedAssessment;
 exports.ModelBasicAssessment = ModelBasicAssessment;
 exports.ModelQuestion = ModelQuestion;
+exports.ModelRequest = ModelRequest;
 exports.ModelAnswer = ModelAnswer;
