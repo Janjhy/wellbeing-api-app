@@ -141,11 +141,12 @@ exports.apiRouter = (app) => {
                         let assessment = new ModelCompletedAssessment({
                             user_id: req.body.user_id,
                             assessment_id: req.body.assessment_id,
-                            answers: req.body.answers,
+                            answers: JSON.parse(req.body.answers),
                             comment: req.body.comment,
                         });
                         assessment.save((err, doc) => {
                             if (err) {
+                                console.log(err);
                                 return res.status(400).json({errors: err});
                             } else {
                                 return res.status(201).json(doc);
