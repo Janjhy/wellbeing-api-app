@@ -127,8 +127,14 @@ exports.apiRouter = (app) => {
         body("assessment_id").exists({ checkFalsy: true }).bail().custom((id) => checkValidID(id)),
         (req, res) => {
             const errors = validationResult(req);
+            console.log('------------------------------------------------------------------------');
+            console.log('------------------------------------------------------------------------');
+            console.log(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
+            }
+            if(JSON.parse(req.body.answers).length <= 0) {
+                return res.status(400).json({errors: "Empty answer array."});
             }
             ModelUser.exists({"_id": req.body.user_id}, (error, result) => {
                 if (error || !result) {

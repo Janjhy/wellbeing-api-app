@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/08d6c2cc-e091-4d89-baee-b21d7c6252d8/resourceGroups/team-wellbeing-api-rg/providers/Microsoft.Web/sites/team-wellbeing-api",
+    "appService.deploySubpath": "."
+}

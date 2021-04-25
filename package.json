@@ -4,7 +4,8 @@
   "description": "A simple API for Wellbeing project.",
   "main": "server.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "start": "node server.js"
   },
   "dependencies": {
     "async": "^3.2.0",
