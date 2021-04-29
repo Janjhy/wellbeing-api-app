@@ -11,10 +11,10 @@ to run the project. Unless you specify a port for the server, you can find the p
 
 ## Routes
 
-GET:  / 
+GET: /   
 Returns a json with welcome message. 
 
-POST:  /user
+POST: /user  
 Creates a new user.
 
 GET:  /find-user/:username?
@@ -27,12 +27,17 @@ POST: /assessment/add-complete
 
 GET: /assessment/:assessmentId/user/:userId
 
-GET: /requests    Gets all request list
+GET: /requests    
+Gets all request list
 
-GET: /requests/:userId    Gets request of certain user
+GET: /requests/:userId    
+Gets request of certain user
 
-POST: /requests   Saves request
+POST: /requests   
+Saves request
 
-PUT: /requests    Modify requests
+PUT: /requests    
+Modify requests
 
-DELETE: /requests/:id    Deletes request by request id
+DELETE: /requests/:id    
+Deletes request by request id
